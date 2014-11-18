@@ -534,6 +534,7 @@ echo "Initializing ups and mrb."
   
 if [[ -d "${FERMIAPP_DIR}" ]]; then
   echo "Sourcing ${FERMIAPP_DIR}setup file"
+  source /grid/fermiapp/products/common/etc/setup
   source ${FERMIAPP_DIR}/setup
   export PRODUCTS=/grid/fermiapp/products/lariat/:${PRODUCTS} 
 elif [[ -d "${OASIS_DIR}" ]]; then
