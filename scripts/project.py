@@ -2518,7 +2518,7 @@ def main(argv):
 			#mmd_cmd = 'samweb modify-metadata %s %s' %(rmfile,"jsonfile.json")
 		        #subprocess.check_output(mmd_cmd, shell = True)	 
 			#temporary fix for declaring the content_status of a file as bad in SAM. 
-			mmd_cmd = 'curl --cert /tmp/x509up_u$(id -u) --insecure -d "status=bad" -d "comment=declared%20bad" https://samweb.fnal.gov:8483/sam/uboone/api/files/name/'+rmfile+'/content_status'
+			mmd_cmd = 'curl --cert /tmp/x509up_u$(id -u) --insecure -d "status=bad" -d "comment=declared%20bad" https://samweb.fnal.gov:8483/sam/lariat/api/files/name/'+rmfile+'/content_status'
 			subprocess.check_output(mmd_cmd, shell = True)	
 			print '\nDeclaring the status of the following file as bad:', rmfile
 			#remove this file from the files.list in the output directory			

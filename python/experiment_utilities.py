@@ -24,7 +24,7 @@ def get_dropbox(filename):
     # Get metadata.
 
     md = {}
-    exp = 'uboone'
+    exp = 'lariat'
     if os.environ.has_key('SAM_EXPERIMENT'):
         exp = os.environ['SAM_EXPERIMENT']
     samweb = samweb_cli.SAMWebClient(experiment=exp)
@@ -51,7 +51,7 @@ def get_dropbox(filename):
 
     # Construct dropbox path.
 
-    path = '/uboone/data/uboonepro/dropbox/%s/%s/%s' % (file_type, group, data_tier)
+    path = '/lariat/data/lariatsoft/dropbox/%s/%s/%s' % (file_type, group, data_tier)
     return path
 
 # Return fcl configuration for experiment-specific sam metadata.

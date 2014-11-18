@@ -35,7 +35,7 @@ cat <<EOF
 
 services.user.IFDH:
 {
-  IFDH_BASE_URI: "http://samweb.fnal.gov:8480/sam/uboone/api"
+  IFDH_BASE_URI: "http://samweb.fnal.gov:8480/sam/lariat/api"
 }
 
 services.user.CatalogInterface:

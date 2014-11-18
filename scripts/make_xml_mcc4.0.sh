@@ -15,7 +15,7 @@
 # Options:
 #
 # --user <user> - Use users/<user> as working and output directories
-#                 (default is to use uboonepro).
+#                 (default is to use lariatpro).
 # --nev <n>     - Specify number of events for all samples.  Otherwise
 #                 use hardwired defaults.
 # --njob <n>    - Specify the number of worker jobs.
@@ -24,7 +24,7 @@
 
 # Parse arguments.
 
-userdir=uboonepro
+userdir=lariatpro
 nevarg=0
 njobarg=0
 
@@ -93,13 +93,13 @@ do
 
     # G4
 
-    g4fcl=g4/standard_g4_uboone.fcl
+    g4fcl=g4/standard_g4_lariat.fcl
 
     # Detsim (optical + tpc).
 
     detsimfcl=''
     #if echo $newprj | grep -q 3window; then
-    #  detsimfcl=detsim/standard_detsim_3window_uboone.fcl
+    #  detsimfcl=detsim/standard_detsim_3window_lariat.fcl
     #fi
     #echo "Using ${detsimfcl}."
 
@@ -107,31 +107,31 @@ do
 
     optsimfcl=''
     #if echo $newprj | grep -q 3window; then
-    #  optsimfcl=detsim/standard_detsim_3window_uboone_optical.fcl
+    #  optsimfcl=detsim/standard_detsim_3window_lariat_optical.fcl
     #fi
     #echo "Using ${optsimfcl}."
 
     # Detsim tpc
 
-    tpcsimfcl=detsim/standard_detsim_uboone.fcl
+    tpcsimfcl=detsim/standard_detsim_lariat.fcl
     if echo $newprj | grep -q 3window; then
-      tpcsimfcl=detsim/standard_detsim_3window_uboone_tpc.fcl
+      tpcsimfcl=detsim/standard_detsim_3window_lariat_tpc.fcl
     fi
     echo "Using ${tpcsimfcl}."
 
     # Reco 2D
 
-    reco2dfcl=reco/standard_reco_uboone_2D_noopt_nowires.fcl
+    reco2dfcl=reco/standard_reco_lariat_2D_noopt_nowires.fcl
     if echo $newprj | grep -q cosmic; then
-      reco2dfcl=reco/standard_reco_uboone_2D_noopt_nowires_cosmic.fcl
+      reco2dfcl=reco/standard_reco_lariat_2D_noopt_nowires_cosmic.fcl
     fi
     echo "Using ${reco2dfcl}."
 
     # Reco 3D
 
-    reco3dfcl=reco/standard_reco_uboone_3D_noopt.fcl
+    reco3dfcl=reco/standard_reco_lariat_3D_noopt.fcl
     if echo $newprj | grep -q cosmic; then
-      reco3dfcl=reco/standard_reco_uboone_3D_noopt_cosmic.fcl
+      reco3dfcl=reco/standard_reco_lariat_3D_noopt_cosmic.fcl
     fi
     echo "Using ${reco3dfcl}."
 
@@ -145,9 +145,9 @@ do
     # Set default number of events.
 
     if [ $nev -eq 0 ]; then
-      if [ $newprj = prodgenie_bnb_nu_cosmic_3window_uboone ]; then
+      if [ $newprj = prodgenie_bnb_nu_cosmic_3window_lariat ]; then
         nev=50000
-      elif [ $newprj = prodgenie_bnb_nu_3window_uboone ]; then
+      elif [ $newprj = prodgenie_bnb_nu_3window_lariat ]; then
         nev=20000
       else
         nev=10000
@@ -178,7 +178,7 @@ do
 <project name="&name;">
 
   <!-- Group -->
-  <group>uboone</group>
+  <group>lariat</group>
 
   <!-- Project size -->
   <numevents>$nev</numevents>
@@ -196,8 +196,8 @@ do
 
   <stage name="gen">
     <fcl>$genfcl</fcl>
-    <outdir>/uboone/data/${userdir}/gen/&release;/&name;</outdir>
-    <workdir>/uboone/app/users/${userdir}/gen/&release;/&name;</workdir>
+    <outdir>/lariat/data/${userdir}/gen/&release;/&name;</outdir>
+    <workdir>/lariat/app/users/${userdir}/gen/&release;/&name;</workdir>
     <numjobs>$njob</numjobs>
     <datatier>generated</datatier>
     <defname>&name;_&tag;_gen</defname>
@@ -205,8 +205,8 @@ do
 
   <stage name="g4">
     <fcl>$g4fcl</fcl>
-    <outdir>/uboone/data/${userdir}/g4/&release;/&name;</outdir>
-    <workdir>/uboone/app/users/${userdir}/g4/&release;/&name;</workdir>
+    <outdir>/lariat/data/${userdir}/g4/&release;/&name;</outdir>
+    <workdir>/lariat/app/users/${userdir}/g4/&release;/&name;</workdir>
     <numjobs>$njob</numjobs>
     <datatier>simulated</datatier>
     <defname>&name;_&tag;_g4</defname>
@@ -217,8 +217,8 @@ EOF
     cat <<EOF >> $newxml
   <stage name="detsim">
     <fcl>$detsimfcl</fcl>
-    <outdir>/uboone/data/${userdir}/detsim/&release;/&name;</outdir>
-    <workdir>/uboone/app/users/${userdir}/detsim/&release;/&name;</workdir>
+    <outdir>/lariat/data/${userdir}/detsim/&release;/&name;</outdir>
+    <workdir>/lariat/app/users/${userdir}/detsim/&release;/&name;</workdir>
     <numjobs>$njob</numjobs>
     <datatier>optical-simulated</datatier>
     <defname>&name;_&tag;_detsim</defname>
@@ -230,8 +230,8 @@ EOF
     cat <<EOF >> $newxml
   <stage name="optsim">
     <fcl>$optsimfcl</fcl>
-    <outdir>/uboone/data/${userdir}/optsim/&release;/&name;</outdir>
-    <workdir>/uboone/app/users/${userdir}/optsim/&release;/&name;</workdir>
+    <outdir>/lariat/data/${userdir}/optsim/&release;/&name;</outdir>
+    <workdir>/lariat/app/users/${userdir}/optsim/&release;/&name;</workdir>
     <numjobs>$njob</numjobs>
     <datatier>optical-simulated</datatier>
     <defname>&name;_&tag;_optsim</defname>
@@ -243,8 +243,8 @@ EOF
     cat <<EOF >> $newxml
   <stage name="tpcsim">
     <fcl>$tpcsimfcl</fcl>
-    <outdir>/uboone/data/${userdir}/tpcsim/&release;/&name;</outdir>
-    <workdir>/uboone/app/users/${userdir}/tpcsim/&release;/&name;</workdir>
+    <outdir>/lariat/data/${userdir}/tpcsim/&release;/&name;</outdir>
+    <workdir>/lariat/app/users/${userdir}/tpcsim/&release;/&name;</workdir>
     <numjobs>$njob</numjobs>
     <datatier>tpc-simulated</datatier>
     <defname>&name;_&tag;_tpcsim</defname>
@@ -255,8 +255,8 @@ EOF
   cat <<EOF >> $newxml
   <stage name="reco2D">
     <fcl>$reco2dfcl</fcl>
-    <outdir>/uboone/data/${userdir}/reco2D/&release;/&name;</outdir>
-    <workdir>/uboone/app/users/${userdir}/reco2D/&release;/&name;</workdir>
+    <outdir>/lariat/data/${userdir}/reco2D/&release;/&name;</outdir>
+    <workdir>/lariat/app/users/${userdir}/reco2D/&release;/&name;</workdir>
     <numjobs>$njob</numjobs>
     <datatier>reconstructed-2d</datatier>
     <defname>&name;_&tag;_reco2D</defname>
@@ -264,8 +264,8 @@ EOF
 
   <stage name="reco3D">
     <fcl>$reco3dfcl</fcl>
-    <outdir>/uboone/data/${userdir}/reco3D/&release;/&name;</outdir>
-    <workdir>/uboone/app/users/${userdir}/reco3D/&release;/&name;</workdir>
+    <outdir>/lariat/data/${userdir}/reco3D/&release;/&name;</outdir>
+    <workdir>/lariat/app/users/${userdir}/reco3D/&release;/&name;</workdir>
     <numjobs>$njob</numjobs>
     <datatier>reconstructed-3d</datatier>
     <defname>&name;_&tag;_reco3D</defname>
@@ -273,8 +273,8 @@ EOF
 
   <stage name="merge">
     <fcl>$mergefcl</fcl>
-    <outdir>/uboone/data/${userdir}/reco/&release;/&name;</outdir>
-    <workdir>/uboone/app/users/${userdir}/reco/&release;/&name;</workdir>
+    <outdir>/lariat/data/${userdir}/reco/&release;/&name;</outdir>
+    <workdir>/lariat/app/users/${userdir}/reco/&release;/&name;</workdir>
     <numjobs>$njob</numjobs>
     <targetsize>2000000000</targetsize>
     <datatier>reconstructed</datatier>
