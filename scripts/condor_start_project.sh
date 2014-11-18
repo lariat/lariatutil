@@ -24,8 +24,8 @@
 # Parse arguments.
 
 SAM_USER=$GRID_USER
-SAM_GROUP="uboone"
-SAM_STATION="uboone"
+SAM_GROUP="lariat"
+SAM_STATION="lariat"
 SAM_DEFNAME=""
 SAM_PROJECT=""
 OUTDIR=""
@@ -130,21 +130,23 @@ fi
 
 # Initialize microboone ups products and mrb.
 
-OASIS_DIR="/cvmfs/oasis.opensciencegrid.org/microboone/products/"
-FERMIAPP_DIR="/grid/fermiapp/products/uboone/"
+OASIS_DIR="/cvmfs/oasis.opensciencegrid.org/larsoft/products/"
+FERMIAPP_DIR="/grid/fermiapp/larsoft/products/"
 
 echo "Initializing ups and mrb."
   
 if [[ -d "${FERMIAPP_DIR}" ]]; then
-  echo "Sourcing ${FERMIAPP_DIR}setup_uboone.sh file"
-  source ${FERMIAPP_DIR}/setup_uboone.sh
+  echo "Sourcing ${FERMIAPP_DIR}setup file"
+  source ${FERMIAPP_DIR}/setup
+  export PRODUCTS=/grid/fermiapp/products/lariat/:${PRODUCTS}
 
 elif [[ -d "${OASIS_DIR}" ]]; then
-  echo "Sourcing the ${OASIS_DIR}setup_uboone.sh file"
-  source ${OASIS_DIR}/setup_uboone.sh
+  echo "Sourcing the ${OASIS_DIR}setup file"
+  source ${OASIS_DIR}/setup
+  export PRODUCTS=/grid/fermiapp/products/lariat/:${PRODUCTS}
 
 else
-  echo "Could not find MRB initialization script setup_uboone.sh"
+  echo "Could not find MRB initialization script setup"
   exit 1
 fi
 
