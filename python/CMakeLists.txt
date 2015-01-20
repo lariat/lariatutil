@@ -5,11 +5,11 @@
 
 # Executable python files.
 
-LIST(APPEND exes extractor_dict.py root_metadata.py)
+LIST(APPEND exes extractor_dict.py )
 
 # Non-executable python files.
 
-LIST(APPEND nonexes project_utilities.py experiment_utilities.py ) 
+LIST(APPEND nonexes experiment_utilities.py ) 
 
 message(STATUS "Executable python modules ${exes}")
 message(STATUS "Non-executable python modules ${nonexes}")
