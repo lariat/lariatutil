@@ -34,7 +34,8 @@ fi
 if [[ -d "${FERMIAPP_LARIAT_DIR}" ]]; then
     echo "Setting up the Grid Fermiapp lariat UPS area...${FERMIAPP_LARIAT_DIR}"
     echo /bin/bash > /dev/null
-    source ${FERMIAPP_LARIAT_DIR}/setups
+#    source ${FERMIAPP_LARIAT_DIR}/setups
+    export "/grid/fermiapp/products/lariat:$PRODUCTS"
 
 elif [[ -d "${OASIS_LARIAT_DIR}" ]]; then
     echo "Setting up the OASIS lariat UPS area...${OASIS_LARIAT_DIR}"

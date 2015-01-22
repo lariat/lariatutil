@@ -41,7 +41,7 @@ table_fragment_end
 # Add the dependent product and version
 
 product          version
-art             v1_12_05
+art             v1_12_04
 larbatch        v01_01_00
 
 cetbuildtools	v4_04_03	-	only_for_build

@@ -93,3 +93,7 @@ def dimensions(project, stage):
     dim = dim + ' and ub_project.version %s' % project.release_tag
     dim = dim + ' and availability: anylocation'
     return dim
+
+def get_ups_products():
+    return 'lariatsoft'
+
