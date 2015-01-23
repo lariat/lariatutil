@@ -3,10 +3,10 @@
 <!-- Production Project -->
 
 <!DOCTYPE project [
-<!ENTITY release "v03_04_01">
+<!ENTITY release "v00_01_02">
 <!ENTITY file_type "mc">
 <!ENTITY run_type "physics">
-<!ENTITY name "prodsingle_lariat">
+<!ENTITY name "prodsingle_lariat_2">
 <!ENTITY tag "mcc5.0">
 ]>
 
@@ -27,13 +27,13 @@
   <!-- Larsoft information -->
   <larsoft>
     <tag>&release;</tag>
-    <qual>e6:prof</qual>
+    <qual>debug:e6</qual>
   </larsoft>
 
   <!-- Project stages -->
 
   <stage name="gen">
-    <fcl>prodsingle_lariat_prof.fcl</fcl>
+    <fcl>prod_eminus_0.1-2.0GeV_isotropic_lariat.fcl</fcl>
     <!--outdir>/pnfs/lariat/scratch/lariatpro/&release;/gen/&name;</outdir>
     <workdir>/lariat/app/users/lariatpro/&release;/gen/&name;</workdir-->
     <outdir>/lariat/data/users/lariatpro/&release;/gen/&name;</outdir>
