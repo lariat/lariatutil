@@ -3,23 +3,20 @@
 <!-- Production Project -->
 
 <!DOCTYPE project [
-<!ENTITY release "v03_04_01">
+<!ENTITY release "v01_00_01">
 <!ENTITY file_type "mc">
 <!ENTITY run_type "physics">
-<!ENTITY name "prod_p_0.1-2.0GeV_isotropic_lariat">
-<!ENTITY tag "mcc5.0">
+<!ENTITY name "prod_eminus_lariat">
+<!ENTITY tag "mcc1.0">
 ]>
 
 <project name="&name;">
-
-  <!-- Group -->
-  <group>lariat</group>
 
   <!-- Project size -->
   <numevents>10000</numevents>
 
   <!-- Operating System -->
-  <os>SL5,SL6</os>
+  <os>SL6</os>
 
   <!-- Batch resources -->
   <resource>DEDICATED,OPPORTUNISTIC</resource>
@@ -27,13 +24,13 @@
   <!-- Larsoft information -->
   <larsoft>
     <tag>&release;</tag>
-    <qual>e5:prof</qual>
+    <qual>e6:prof</qual>
   </larsoft>
 
   <!-- Project stages -->
 
   <stage name="gen">
-    <fcl>prod_p_0.1-2.0GeV_isotropic_lariat.fcl</fcl>
+    <fcl>prod_eminus_lariat.fcl</fcl>
     <outdir>/pnfs/lariat/scratch/lariatpro/&release;/gen/&name;</outdir>
     <workdir>/lariat/app/users/lariatpro/&release;/gen/&name;</workdir>
     <numjobs>100</numjobs>
@@ -83,7 +80,7 @@
     <workdir>/lariat/app/users/lariatpro/&release;/mergeana/&name;</workdir>
     <numjobs>100</numjobs>
     <targetsize>8000000000</targetsize>
-    <datatier>reconstructed</datatier>
+    <datatier>reconstructed-3d</datatier>
     <defname>&name;_&tag;</defname>
   </stage>
 
