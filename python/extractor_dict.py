@@ -61,9 +61,9 @@ def getmetadata(inputfile):
 				md['fcl.version']  = columns[-1]
 			elif columns[1] == 'fileFormat':
 				md['file_format']  = columns[-1]
-			elif columns[1] == 'ubProjectStage':
+			elif columns[1] == 'lariatProjectStage':
 				md['ub_project.stage']  = columns[-1]
-			elif columns[1] == 'ubProjectVersion':
+			elif columns[1] == 'lariatProjectVersion':
 				md['ub_project.version']  = columns[-1]
 			elif columns[1] == 'lastEvent':
 				md['last_event']  = columns[-1]
@@ -85,7 +85,7 @@ def getmetadata(inputfile):
 				app_version = columns[-1]
 			elif columns[1] == 'process_name':
 				app_name = columns[-1]
-			elif columns[1] == 'ubProjectName':
+			elif columns[1] == 'lariatProjectName':
 				PName = True
 				md['ub_project.name'] = columns[-1]
 			elif columns[1] == 'parent':
