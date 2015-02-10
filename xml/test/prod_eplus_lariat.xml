@@ -3,7 +3,7 @@
 <!-- Production Project -->
 
 <!DOCTYPE project [
-<!ENTITY release "v01_00_01">
+<!ENTITY release "v01_00_02">
 <!ENTITY file_type "mc">
 <!ENTITY run_type "physics">
 <!ENTITY name "prod_eplus_lariat">
@@ -24,7 +24,7 @@
   <!-- Larsoft information -->
   <larsoft>
     <tag>&release;</tag>
-    <qual>e6:prof</qual>
+    <qual>debug:e6</qual>
   </larsoft>
 
   <!-- Project stages -->
