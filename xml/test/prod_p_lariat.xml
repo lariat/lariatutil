@@ -3,7 +3,7 @@
 <!-- Production Project -->
 
 <!DOCTYPE project [
-<!ENTITY release "v01_00_03">
+<!ENTITY release "v01_00_04">
 <!ENTITY file_type "mc">
 <!ENTITY run_type "physics">
 <!ENTITY name "prod_p_lariat">
@@ -33,6 +33,7 @@
     <fcl>prod_p_lariat.fcl</fcl>
     <outdir>/pnfs/lariat/scratch/lariatpro/&release;/gen/&name;</outdir>
     <workdir>/lariat/app/users/lariatpro/&release;/gen/&name;</workdir>
+    <initsource>/pnfs/lariat/scratch/users/andrzejs/beamspillcount.sh</initsource>
     <numjobs>100</numjobs>
     <datatier>generated</datatier>
     <defname>&name;_&tag;_gen</defname>

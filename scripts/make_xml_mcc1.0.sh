@@ -30,7 +30,7 @@
 
 # Parse arguments.
 
-rel=v01_00_01
+rel=v01_00_04
 userdir=lariatpro
 userbase=$userdir
 nevarg=0
@@ -248,6 +248,7 @@ EOF
     <fcl>$genfcl</fcl>
     <outdir>/pnfs/lariat/scratch/${userdir}/&release;/gen/&name;</outdir>
     <workdir>/lariat/app/users/${userbase}/&release;/gen/&name;</workdir>
+    <initsource>/pnfs/lariat/scratch/users/andrzejs/beamspillcount.sh</initsource>
     <numjobs>$njob1</numjobs>
     <datatier>generated</datatier>
     <defname>&name;_&tag;_gen</defname>
