@@ -1,0 +1,1 @@
+ls /grid/fermiapp/products/lariat/LariatBeamFiles/v01_00/data/*BigDisk* | sed 's/\/grid\/fermiapp\/products\/lariat\/LariatBeamFiles\/v01_00\/data\// /g' | awk -F _ '{print prodbeam_MBD____0;}' | sed 's/root/fcl/g' | xargs -n 1 touch
