@@ -44,7 +44,7 @@ table_fragment_end
 product          version
 art             v1_14_03
 larbatch        v01_11_00
-lariatsoft      v01_05_00
+lariatsoft      v01_05_01
 
 cetbuildtools	v4_11_01	-	only_for_build
 end_product_list
