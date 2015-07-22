@@ -2,7 +2,7 @@
 
 # The *parent* line must the first non-commented line and defines this product and version
 # The version should be of the form vxx_yy_zz (e.g. v01_02_03)
-parent lariatutil v01_18_01
+parent lariatutil v01_21_00
 defaultqual e7
 
 
@@ -42,21 +42,19 @@ table_fragment_end
 # Add the dependent product and version
 
 product          version
-art             v1_13_02
-larbatch        v01_08_00
-lariatsoft      v01_04_00
+larbatch        v01_12_01
+lariatsoft      v01_06_00
 
-
-cetbuildtools	v4_09_02	-	only_for_build
+cetbuildtools	v4_12_05	-	only_for_build
 end_product_list
 
 
 # We now define allowed qualifiers and the corresponding qualifiers for the depdencies.
 # Make a table by adding columns before "notes". 
-qualifier	art		larbatch	lariatsoft	notes
-e7:debug	nu:e7:debug	-nq-	e7:debug
-e7:opt		nu:e7:opt	-nq-	e7:opt
-e7:prof		nu:e7:prof	-nq-	e7:prof
+qualifier      larbatch	 lariatsoft	notes
+e7:debug       -nq-	 e7:debug
+e7:opt	       -nq-	 e7:opt
+e7:prof	       -nq-	 e7:prof
 end_qualifier_list
 
 # Preserve tabs and formatting in emacs and vi / vim:
