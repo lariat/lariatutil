@@ -2,7 +2,7 @@
 
 # The *parent* line must the first non-commented line and defines this product and version
 # The version should be of the form vxx_yy_zz (e.g. v01_02_03)
-parent lariatutil v01_23_01
+parent lariatutil v01_23_02
 defaultqual e7
 
 
@@ -43,7 +43,7 @@ table_fragment_end
 
 product          version
 larbatch        v01_14_00
-lariatsoft      v01_08_01
+lariatsoft      v01_08_02
 
 cetbuildtools	v4_13_00	-	only_for_build
 end_product_list
