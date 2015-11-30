@@ -40,7 +40,7 @@ samweb = samweb_cli.SAMWebClient(experiment='lariat')
 
 for runnumber in xrange (firstrun, lastrun+1):
     count = 0
-    query = "run_number {} and file_format artroot".format(runnumber)
+    query = "run_number {} and file_format artroot and data_tier raw".format(runnumber)
     count = samweb.countFiles(query)
     if count > 0:
         if debug: print count
