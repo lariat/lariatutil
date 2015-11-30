@@ -6,7 +6,7 @@ import os
 import samweb_cli
 import xml.etree.ElementTree as ET
 
-parser = argparse.ArgumentParser(description="Get files from SAM.")
+parser = argparse.ArgumentParser(description="(Re-)Create a config.xml for production.py, given a first and last run number.")
 parser.add_argument('firstrun', type=int, help="first run number in series")
 parser.add_argument('lastrun', type=int, help="last run number in series")
 parser.add_argument('-o', '--outfilename',type=str, help="Config filename to make or overwrite", default="config.xml")
