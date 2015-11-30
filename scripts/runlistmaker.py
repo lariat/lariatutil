@@ -25,7 +25,6 @@ if firstrun > lastrun:
     lastrun = tmp
     print 'Swapped firstrun and lastrun for you: {0:} < {1:}.'.format(firstrun, lastrun)
 
-output_dir = './'
 runlist = []
 run_NONE = []
 run_e0 = []
@@ -38,29 +37,42 @@ countlist = []
 # configure samweb
 samweb = samweb_cli.SAMWebClient(experiment='lariat')
 
-for runnumber in xrange (firstrun, lastrun+1):
-    count = 0
-    query = "run_number {} and file_format artroot and data_tier raw".format(runnumber)
-    count = samweb.countFiles(query)
-    if count > 0:
-        if debug: print count
-        runlist.append(runnumber)
-        if count < 10: run_e0.append(runnumber)
-        elif count < 100: run_e1.append(runnumber)
-        elif count < 1000: run_e2.append(runnumber)
-        elif count < 10000: run_e3.append(runnumber)
-        else: run_e4.append(runnumber)
-    else: run_NONE.append(runnumber)
+def getfilestats(filestats_str):
+    """
+    Get the file lists, and fill out a string 
+    saying how many files of what lengths we get.
+    Bail out completely if there just aren't any. 
+    """
+    for runnumber in xrange (firstrun, lastrun+1):
+        count = 0
+        query = "run_number {} and file_format artroot and data_tier raw".format(runnumber)
+        count = samweb.countFiles(query)
+        if count > 0:
+            if debug: print count
+            runlist.append(runnumber)
+            if count < 10: run_e0.append(runnumber)
+            elif count < 100: run_e1.append(runnumber)
+            elif count < 1000: run_e2.append(runnumber)
+            elif count < 10000: run_e3.append(runnumber)
+            else: run_e4.append(runnumber)
+        else: run_NONE.append(runnumber)
 
-print 'Runs with zero files:{0:}'.format( len(run_NONE) )
-print 'Runs with O(10e0) files:{0:}'.format( len(run_e0) )
-print 'Runs with O(10e1) files:{0:}'.format( len(run_e1) )
-print 'Runs with O(10e2) files:{0:}'.format( len(run_e2) )
-print 'Runs with O(10e3) files:{0:}'.format( len(run_e3) )
-print 'Runs with O(10e4) files:{0:}'.format( len(run_e4) )
+    filestats_str = filestats_str + 'Runs with zero files:{0:}\n'.format( len(run_NONE) )
+    filestats_str = filestats_str + 'Runs with O(10e0) files:{0:}\n'.format( len(run_e0) )
+    filestats_str = filestats_str + 'Runs with O(10e1) files:{0:}\n'.format( len(run_e1) )
+    filestats_str = filestats_str + 'Runs with O(10e2) files:{0:}\n'.format( len(run_e2) )
+    filestats_str = filestats_str + 'Runs with O(10e3) files:{0:}\n'.format( len(run_e3) )
+    filestats_str = filestats_str + 'Runs with O(10e4) files:{0:}\n'.format( len(run_e4) )
+    
+    if len(runlist) < 1: 
+        exit('No runs in range {0:}-{0:} have any input files.'.format(firstrun, lastrun))
+    else: return filestats_str
 
-if len(runlist) < 1: 
-    exit('No runs in range {0:}-{0:} have any input files.'.format(firstrun, lastrun))
+# Get the file lists, and fill out a string 
+# saying how many files of what lengths we get.
+# Bail out completely if there just aren't any. 
+filestats_str = ''
+filestats_str = getfilestats(filestats_str)
 
 # Should we be smarter about the order in which runs are scheduled to run? 
 # For now, proceeding the easy, dumb way.
@@ -109,10 +121,12 @@ while (True):
             outfilename = altname
             print 'Creating {0:}: \n'.format(outfilename)
             create_config_xml()
+            print filestats_str
             break
         elif reply == '' or reply.lower() == 'y':
             print 'Overwriting {0:}: \n'.format(outfilename)
             create_config_xml()
+            print filestats_str
             break
         else: 
             print 'Say what?'
