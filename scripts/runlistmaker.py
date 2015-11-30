@@ -17,7 +17,7 @@ lastrun = args.lastrun
 outfilename = args.outfilename
 debug = False
 
-print 'Output filename :{}'.format(outfilename)
+print 'Output filename: {}'.format(outfilename)
 
 if firstrun > lastrun:
     tmp = firstrun
