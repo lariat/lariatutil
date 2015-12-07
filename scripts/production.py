@@ -13,8 +13,8 @@ import os.path
 import shutil
 import argparse
 import subprocess
-
 import xml.etree.ElementTree as ET
+import psycopg2
 
 import samweb_client
 
@@ -95,6 +95,15 @@ project_xml = xml_root.findall('project_xml')[0].text
 runs = map(int, xml_root.findall('runs')[0].text.split())
 work_dir = xml_root.findall('work_dir')[0].text
 
+# please, please open a connection to the database!
+please = open('/lariat/app/home/lariatpro/lariat_prd_passwd')
+please = please.read()
+conn = psycopg2.connect(database='lariat_prd',port='5443',host='ifdb02.fnal.gov',user='lariat_prd_user', password = please)
+conn.autocommit = True  # When we execute queries, we mean it!
+
+# Get the cursor, which sends all the db queries.
+dbcur = conn.cursor()
+
 # Python is just another dialect of Parseltongue.
 #
 #    --..,_                     _,.--.
@@ -110,6 +119,17 @@ if prepare:
     # configure samweb
     samweb = samweb_client.SAMWebClient(experiment='lariat')
 
+    # Register this campaign in the processsing database.
+    lariatsoft_rel = 'Dummy'
+    dbquery = 'INSERT INTO prodcampaigns ( launchtime, lariatsoft_tag) VALUES (now(), \'{}\');'.format(lariatsoft_rel)
+    dbcur.execute(dbquery)
+    if 'INSERT 0 1' not in dbcur.statusmessage: exit ("Unable to register this campaign in the database.")
+
+    # Get the campaign number we were just assigned
+    dbcur.execute('SELECT prodcampaignnum FROM prodcampaigns ORDER BY launchtime DESC LIMIT 1;')
+    result = dbcur.fetchall() # Returns a list (length 1) of tuples (only want the 0th element)
+    prodcampaignnum = result[0][0] #...only want the integer within. 
+    
     # loop over runs
     for run in runs:
 
@@ -125,6 +145,11 @@ if prepare:
         # create directory if it does not exist
         if not os.path.exists(directory):
             os.makedirs(directory)
+
+        # resgister this run in this campaign in the processing database
+        dbquery = 'INSERT INTO runsofflineprocessed (runnumber, prodcampaignnum, work_dir, status) VALUES (%s,%s,%s,%s);'
+        deets = (run, prodcampaignnum, directory, 'Not launched')
+        dbcur.execute(dbquery, deets)
 
         # input list file
         input_list_path = directory + '/input_r' + run_str + '.list'
@@ -285,4 +310,4 @@ if submit or status or check or makeup or clean:
 
         # run command
         subprocess.check_call(cmd)
-
+        # Need to capture and parse the output, and update the database accordingly: -d lariat_prd -p 5443 -h ifdb02.fnal.gov
