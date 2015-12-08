@@ -226,6 +226,8 @@ if prepare:
             with open(project_xml_path, 'w') as project_xml_file:
                 project_xml_file.write(project_xml_template % xml_config)
 
+import datetime
+
 # utilize project.py
 if submit or status or check or makeup or clean:
 
@@ -243,6 +245,21 @@ if submit or status or check or makeup or clean:
     else:
         print "\nNo project.py action found. Exiting...\n"
         sys.exit(1)
+
+    # get the list of all the prodcampaigns we might be checking on
+    dbquery = 'SELECT * FROM prodcampaigns ORDER BY prodcampaignnum;'
+    dbcur.execute(dbquery)
+
+    # column names
+    column_names = [desc[0] for desc in dbcur.description]
+    print "{:<18} {:<20} {:<16}".format(column_names[0], column_names[1], column_names[2])
+
+    # List options, get input on which campaign to talk to.
+    campaigns_dict = {}    
+    for row in dbcur.fetchall():
+        campaigns_dict [row[0]] = row
+        print "{:<18} {:<20} {:<16}".format(row[0], row[1].strftime('%Y-%m-%d %H:%M:%S'), row[2])
+    prodcampaignnum = raw_input("Which campaign number?  ")
 
     # loop over runs
     for run in runs:
@@ -308,6 +325,48 @@ if submit or status or check or makeup or clean:
         print "\nExecuting command:\n"
         print "    " + " ".join(cmd) + "\n"
 
-        # run command
-        subprocess.check_call(cmd)
-        # Need to capture and parse the output, and update the database accordingly: -d lariat_prd -p 5443 -h ifdb02.fnal.gov
+        # run command, examine output
+        cmdout = subprocess.check_output(cmd)
+        if status: 
+            status_d = {}
+            lines = cmdout.split('\n')
+            for line in lines:
+                # Take everything after the first ':' and throw away the '.' at the end.
+                if line.count(":") < 1: continue
+                tmpline = line.split(':')[1].rstrip('.')
+
+                # split each line up by commas
+                parts = tmpline.split(',')
+                if len(parts) < 2: continue # Skip the blank lines.
+                for part in parts:
+                    # Assuming format like "98 analysis files" or "0 errors"
+                    part = part.lstrip()
+                    (count, label) = part.split(" ",1)
+                    # Store in the dictionary like this
+                    # status_s['analysis files'] = 98
+                    status_d[label] = count
+
+            # Now status_d is like 
+            # {'errors': '0', 'missing files': '0', 'art files': '382', 'analysis files': '0', 
+            #  'running': '0', 'held': '0', 'idle': '0', 'other': '0', 'events': '6518'}
+
+            # Extract which one status is the one reported. All others will be 0. 
+            statuses = ('idle','running','held','other')
+            ministat_d = {}
+            for stat in statuses: ministat_d[stat] = status_d[stat]
+
+            # Were all statuses zero? Then we haven't submitted yet.
+            status_sum = 0
+            for stat in ministat_d.values(): status_sum = status_sum + int(stat)
+            if status_sum == 0: 
+                status = 'Not launched'
+            else: 
+                # Not all zero. Which one has the most jobs? 
+                v = []
+                for stat in ministat_d.values: v.append(int(stat))
+                status = list(ministat_d.keys())[v.index(max(v))]
+            # print 'status: ',status,'idle:',status_d['idle'],', running:',status_d['running'],', held:',status_d['held'],', other:',status_d['other'] 
+
+            dbquery = 'UPDATE runsofflineprocessed SET num_art_files = %s, num_events = %s, num_analysis_files = %s, num_errors = %s, num_missing_files = %s, status = %s WHERE runnumber = %s AND prodcampaignnum = %s;'
+            deets = (status_d['art files'], status_d['events'], status_d['analysis files'], status_d['errors'], status_d['missing files'], status, run, prodcampaignnum)
+            dbcur.execute(dbquery, deets)
