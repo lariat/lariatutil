@@ -423,3 +423,4 @@ if submit or status or check or makeup or clean:
             dbquery = 'UPDATE runsofflineprocessed SET num_events = %s, num_analysis_files = %s, num_errors = %s, num_missing_files = %s WHERE runnumber = %s AND prodcampaignnum = %s;'
             deets = (good_events, good_root_files, num_errors, num_missing_files, run, prodcampaignnum)
             dbcur.execute(dbquery, deets)
+
