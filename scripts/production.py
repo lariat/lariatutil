@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 #/////////////////////////////////////////////////////////////
 # Name:    TBD
 # Date:    28 September 2015
@@ -128,8 +127,10 @@ if prepare:
     # Get the campaign number we were just assigned
     dbcur.execute('SELECT prodcampaignnum FROM prodcampaigns ORDER BY launchtime DESC LIMIT 1;')
     result = dbcur.fetchall() # Returns a list (length 1) of tuples (only want the 0th element)
-    prodcampaignnum = result[0][0] #...only want the integer within. 
-    
+    prodcampaignnum = result[0][0] #...only want the integer within.
+    print '***  Created new production campaign: ', prodcampaignnum, 'runs: '
+    print runs
+
     # loop over runs
     for run in runs:
 
@@ -247,7 +248,7 @@ if submit or status or check or makeup or clean:
         sys.exit(1)
 
     # get the list of all the prodcampaigns we might be checking on
-    dbquery = 'SELECT * FROM prodcampaigns ORDER BY prodcampaignnum;'
+    dbquery = 'SELECT prodcampaignnum, launchtime, lariatsoft_tag FROM prodcampaigns ORDER BY prodcampaignnum;'
     dbcur.execute(dbquery)
 
     # column names
@@ -255,12 +256,28 @@ if submit or status or check or makeup or clean:
     print "{:<18} {:<20} {:<16}".format(column_names[0], column_names[1], column_names[2])
 
     # List options, get input on which campaign to talk to.
-    campaigns_dict = {}    
+    campaigns_dict = {}
+    prodcampaignnums = []
     for row in dbcur.fetchall():
         campaigns_dict [row[0]] = row
+        prodcampaignnums.append(int(row[0]))
         print "{:<18} {:<20} {:<16}".format(row[0], row[1].strftime('%Y-%m-%d %H:%M:%S'), row[2])
-    prodcampaignnum = raw_input("Which campaign number?  ")
+    while(True):
+        prodcampaignnum = raw_input("Which campaign number?  ")
 
+        # Take the max by default.
+        if prodcampaignnum == '':
+            prodcampaignnum = max(prodcampaignnums)
+            break
+        # Do not tolerate shenanigans
+        elif int(prodcampaignnum) not in prodcampaignnums:
+            print 'Entry ', prodcampaignnum, ' not in list:',
+            print prodcampaignnums
+        else:
+            prodcampaignnum = int(prodcampaignnum)
+            break
+
+    print 'OK, it\'s campaign number ',prodcampaignnum,'.'
     # loop over runs
     for run in runs:
 
@@ -327,7 +344,14 @@ if submit or status or check or makeup or clean:
 
         # run command, examine output
         cmdout = subprocess.check_output(cmd)
-        if status: 
+        if submit:
+            dbquery = 'UPDATE runsofflineprocessed SET status = \'submitted\' WHERE runnumber = %s AND prodcampaignnum = %s'
+            deets = (run, prodcampaignnum)
+            dbcur.execute(dbquery, deets)
+            # Did it work?
+            if dbcur.statusmessage.count('UPDATE') == 0: print dbcur.statusmessage, ': ', dbcur.query
+
+        if status:
             status_d = {}
             lines = cmdout.split('\n')
             for line in lines:
@@ -346,11 +370,11 @@ if submit or status or check or makeup or clean:
                     # status_s['analysis files'] = 98
                     status_d[label] = count
 
-            # Now status_d is like 
-            # {'errors': '0', 'missing files': '0', 'art files': '382', 'analysis files': '0', 
+            # Now status_d is like
+            # {'errors': '0', 'missing files': '0', 'art files': '382', 'analysis files': '0',
             #  'running': '0', 'held': '0', 'idle': '0', 'other': '0', 'events': '6518'}
 
-            # Extract which one status is the one reported. All others will be 0. 
+            # Extract which one status is the one reported. All others will be 0.
             statuses = ('idle','running','held','other')
             ministat_d = {}
             for stat in statuses: ministat_d[stat] = status_d[stat]
@@ -358,15 +382,24 @@ if submit or status or check or makeup or clean:
             # Were all statuses zero? Then we haven't submitted yet.
             status_sum = 0
             for stat in ministat_d.values(): status_sum = status_sum + int(stat)
-            if status_sum == 0: 
+            if status_sum == 0:
                 status = 'Not launched'
-            else: 
-                # Not all zero. Which one has the most jobs? 
+            else:
+                # Not all zero. Which one has the most jobs? (Hint: There's only one job per run.)
                 v = []
-                for stat in ministat_d.values: v.append(int(stat))
+                for stat in ministat_d.values(): v.append(int(stat))
                 status = list(ministat_d.keys())[v.index(max(v))]
-            # print 'status: ',status,'idle:',status_d['idle'],', running:',status_d['running'],', held:',status_d['held'],', other:',status_d['other'] 
+            # print 'status: ',status,'idle:',status_d['idle'],', running:',status_d['running'],', held:',status_d['held'],', other:',status_d['other']
+            # Was the job launched but all the statuses are now 0?  Could be complete.
+            dbquery = 'SELECT status FROM runsofflineprocessed WHERE runnumber = %s AND prodcampaignnum = %s;'
+            deets = (run, prodcampaignnum)
+            dbcur.execute(dbquery, deets)
+            oldstat = dbcur.fetchone()[0]  # Want the first (and only) element in the list returned
+            if status_sum == 0 and oldstat != 'Not launched': status = 'complete'
+            if status_sum == 0 and oldstat == 'Not launched': status = oldstat
 
             dbquery = 'UPDATE runsofflineprocessed SET num_art_files = %s, num_events = %s, num_analysis_files = %s, num_errors = %s, num_missing_files = %s, status = %s WHERE runnumber = %s AND prodcampaignnum = %s;'
             deets = (status_d['art files'], status_d['events'], status_d['analysis files'], status_d['errors'], status_d['missing files'], status, run, prodcampaignnum)
+            dbcur.execute(dbquery, deets)
+
             dbcur.execute(dbquery, deets)
