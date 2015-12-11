@@ -402,4 +402,24 @@ if submit or status or check or makeup or clean:
             deets = (status_d['art files'], status_d['events'], status_d['analysis files'], status_d['errors'], status_d['missing files'], status, run, prodcampaignnum)
             dbcur.execute(dbquery, deets)
 
+        if check:
+            # cmdout will be, like, totally, all this way:
+            # Checking directory /pnfs/lariat/scratch/users/lariatpro/preproduction/develop/digit_run_006190
+            # Checking root files in directory /pnfs/lariat/scratch/users/lariatpro/preproduction/develop/digit_run_006190/6138292_0.
+            # 91 total good events.
+            # 2 total good root files.
+            # 0 total good histogram files.
+            # 0 processes with errors.
+            # 0 missing files.
+            print cmdout
+            lines = cmdout.split('\n')  #Split on linebreaks
+            for line in lines:
+                if line.count('good events') > 0: good_events = int(line.split(' ')[0])
+                elif line.count('good root files') > 0: good_root_files = int(line.split(' ')[0])
+                elif line.count('good histogram files') > 0: good_histogram_files = int(line.split(' ')[0])
+                elif line.count('processes with errors') > 0: num_errors = int(line.split(' ')[0])
+                elif line.count('missing files') > 0: num_missing_files = int(line.split(' ')[0])
+
+            dbquery = 'UPDATE runsofflineprocessed SET num_events = %s, num_analysis_files = %s, num_errors = %s, num_missing_files = %s WHERE runnumber = %s AND prodcampaignnum = %s;'
+            deets = (good_events, good_root_files, num_errors, num_missing_files, run, prodcampaignnum)
             dbcur.execute(dbquery, deets)
