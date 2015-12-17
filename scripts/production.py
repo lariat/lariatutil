@@ -97,7 +97,7 @@ work_dir = xml_root.findall('work_dir')[0].text
 # please, please open a connection to the database!
 please = open('/lariat/app/home/lariatpro/lariat_prd_passwd')
 please = please.read()
-conn = psycopg2.connect(database='lariat_prd',port='5443',host='ifdb02.fnal.gov',user='lariat_prd_user', password = please)
+conn = psycopg2.connect(database='lariat_prd',port='5443',host='ifdbprod2.fnal.gov',user='lariat_prd_user', password = please)
 conn.autocommit = True  # When we execute queries, we mean it!
 
 # Get the cursor, which sends all the db queries.
@@ -128,8 +128,7 @@ if prepare:
     dbcur.execute('SELECT prodcampaignnum FROM prodcampaigns ORDER BY launchtime DESC LIMIT 1;')
     result = dbcur.fetchall() # Returns a list (length 1) of tuples (only want the 0th element)
     prodcampaignnum = result[0][0] #...only want the integer within.
-    print '***  Created new production campaign: ', prodcampaignnum, 'runs: '
-    print runs
+    print '***  Created new production campaign: ', prodcampaignnum, 'run count: ', len(runs)
 
     # loop over runs
     for run in runs:
@@ -277,9 +276,24 @@ if submit or status or check or makeup or clean:
             prodcampaignnum = int(prodcampaignnum)
             break
 
-    print 'OK, it\'s campaign number ',prodcampaignnum,'.'
+    print 'OK, it\'s going to be campaign number ',prodcampaignnum,'.'
+
+    # Get a list of any runs which might already be complete. Their status isn't worth checking.
+    dbquery = 'SELECT runnumber from runsofflineprocessed WHERE prodcampaignnum = %s AND status LIKE \'complete\' ORDER BY runnumber;'
+    deets = (prodcampaignnum,)
+    dbcur.execute(dbquery, deets)
+    comepletedrunlistoftuples = dbcur.fetchall()
+    comepletedrunlist = []
+    for entry in comepletedrunlistoftuples:
+        comepletedrunlist.append(entry[0])
+
     # loop over runs
     for run in runs:
+
+        # Skip checking on completed runs
+        if action.count('check') + action.count('status') > 0:
+            if run in comepletedrunlist: 
+                continue
 
         # add leading zeros to run number
         run_str = str(run).zfill(6)
@@ -343,7 +357,13 @@ if submit or status or check or makeup or clean:
         print "    " + " ".join(cmd) + "\n"
 
         # run command, examine output
-        cmdout = subprocess.check_output(cmd)
+        try:
+            cmdout = subprocess.check_output(cmd)
+        except:
+            print 'That one wasn\'t so great. Skipping because we got ',
+            continue
+ 
+
         if submit:
             dbquery = 'UPDATE runsofflineprocessed SET status = \'submitted\' WHERE runnumber = %s AND prodcampaignnum = %s'
             deets = (run, prodcampaignnum)
