@@ -90,7 +90,7 @@ def create_config_xml():
     outfile = open(outfilename,'w')
     config_el = ET.Element('config')
     # Need a workdir...
-    workdir_el = ET.SubElement(config_el, 'workdir')
+    workdir_el = ET.SubElement(config_el, 'work_dir')
     workdir_el.text = '/lariat/app/users/lariatpro/lariatsoft/develop/production/job'
     # ...a project_xml...
     project_xml_el = ET.SubElement(config_el, 'project_xml')
