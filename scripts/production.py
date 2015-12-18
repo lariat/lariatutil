@@ -410,12 +410,12 @@ if submit or status or check or makeup or clean:
                 for stat in ministat_d.values(): v.append(int(stat))
                 status = list(ministat_d.keys())[v.index(max(v))]
             # print 'status: ',status,'idle:',status_d['idle'],', running:',status_d['running'],', held:',status_d['held'],', other:',status_d['other']
-            # Was the job launched but all the statuses are now 0?  Could be complete.
+            # Was the job launched but all the statuses are now 0?  Could be done.
             dbquery = 'SELECT status FROM runsofflineprocessed WHERE runnumber = %s AND prodcampaignnum = %s;'
             deets = (run, prodcampaignnum)
             dbcur.execute(dbquery, deets)
             oldstat = dbcur.fetchone()[0]  # Want the first (and only) element in the list returned
-            if status_sum == 0 and oldstat != 'Not launched': status = 'complete'
+            if status_sum == 0 and oldstat != 'Not launched': status = 'done'
             if status_sum == 0 and oldstat == 'Not launched': status = oldstat
 
             dbquery = 'UPDATE runsofflineprocessed SET num_art_files = %s, num_events = %s, num_analysis_files = %s, num_errors = %s, num_missing_files = %s, status = %s WHERE runnumber = %s AND prodcampaignnum = %s;'
@@ -433,6 +433,7 @@ if submit or status or check or makeup or clean:
             # 0 missing files.
             print cmdout
             lines = cmdout.split('\n')  #Split on linebreaks
+            good_events = good_root_files = good_histogram_files = num_errors = num_missing_files = 0
             for line in lines:
                 if line.count('good events') > 0: good_events = int(line.split(' ')[0])
                 elif line.count('good root files') > 0: good_root_files = int(line.split(' ')[0])
@@ -440,6 +441,11 @@ if submit or status or check or makeup or clean:
                 elif line.count('processes with errors') > 0: num_errors = int(line.split(' ')[0])
                 elif line.count('missing files') > 0: num_missing_files = int(line.split(' ')[0])
 
-            dbquery = 'UPDATE runsofflineprocessed SET num_events = %s, num_analysis_files = %s, num_errors = %s, num_missing_files = %s WHERE runnumber = %s AND prodcampaignnum = %s;'
-            deets = (good_events, good_root_files, num_errors, num_missing_files, run, prodcampaignnum)
+            if good_events + good_root_files + good_histogram_files + num_errors + num_missing_files = 0:
+                status = 'problem'
+            else: 
+                status = 'complete'
+
+            dbquery = 'UPDATE runsofflineprocessed SET num_events = %s, num_analysis_files = %s, num_errors = %s, num_missing_files = %s, status = %s WHERE runnumber = %s AND prodcampaignnum = %s;'
+            deets = (good_events, good_root_files, num_errors, num_missing_files, status, run, prodcampaignnum)
             dbcur.execute(dbquery, deets)
