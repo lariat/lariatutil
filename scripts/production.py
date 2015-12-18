@@ -441,7 +441,7 @@ if submit or status or check or makeup or clean:
                 elif line.count('processes with errors') > 0: num_errors = int(line.split(' ')[0])
                 elif line.count('missing files') > 0: num_missing_files = int(line.split(' ')[0])
 
-            if good_events + good_root_files + good_histogram_files + num_errors + num_missing_files = 0:
+            if good_events + good_root_files + good_histogram_files + num_errors + num_missing_files == 0:
                 status = 'problem'
             else: 
                 status = 'complete'
