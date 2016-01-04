@@ -129,6 +129,7 @@ if prepare:
     result = dbcur.fetchall() # Returns a list (length 1) of tuples (only want the 0th element)
     prodcampaignnum = result[0][0] #...only want the integer within.
     print '***  Created new production campaign: ', prodcampaignnum, 'run count: ', len(runs)
+    raw_input('Enter to proceed')
 
     # loop over runs
     for run in runs:
@@ -250,11 +251,11 @@ if submit or status or check or makeup or clean:
     dbquery = 'SELECT prodcampaignnum, launchtime, lariatsoft_tag FROM prodcampaigns ORDER BY prodcampaignnum;'
     dbcur.execute(dbquery)
 
-    # column names
+    # print a header line of the column names
     column_names = [desc[0] for desc in dbcur.description]
     print "{:<18} {:<20} {:<16}".format(column_names[0], column_names[1], column_names[2])
 
-    # List options, get input on which campaign to talk to.
+    # List results, get input on which campaign to talk to.
     campaigns_dict = {}
     prodcampaignnums = []
     for row in dbcur.fetchall():
@@ -264,7 +265,7 @@ if submit or status or check or makeup or clean:
     while(True):
         prodcampaignnum = raw_input("Which campaign number?  ")
 
-        # Take the max by default.
+        # Take the max by default, if user just hits enter
         if prodcampaignnum == '':
             prodcampaignnum = max(prodcampaignnums)
             break
@@ -272,27 +273,27 @@ if submit or status or check or makeup or clean:
         elif int(prodcampaignnum) not in prodcampaignnums:
             print 'Entry ', prodcampaignnum, ' not in list:',
             print prodcampaignnums
-        else:
+        else: # but do listen to reasonable requests and move on
             prodcampaignnum = int(prodcampaignnum)
             break
 
     print 'OK, it\'s going to be campaign number ',prodcampaignnum,'.'
 
-    # Get a list of any runs which might already be complete. Their status isn't worth checking.
-    dbquery = 'SELECT runnumber from runsofflineprocessed WHERE prodcampaignnum = %s AND status LIKE \'complete\' ORDER BY runnumber;'
+    # Get a list of any runs which might already be done. Their status isn't worth checking.
+    dbquery = 'SELECT runnumber from runsofflineprocessed WHERE prodcampaignnum = %s AND status LIKE \'done\' ORDER BY runnumber;'
     deets = (prodcampaignnum,)
     dbcur.execute(dbquery, deets)
-    comepletedrunlistoftuples = dbcur.fetchall()
-    comepletedrunlist = []
-    for entry in comepletedrunlistoftuples:
-        comepletedrunlist.append(entry[0])
+    donerunlistoftuples = dbcur.fetchall()
+    donerunlist = []
+    for entry in donerunlistoftuples:
+        donerunlist.append(entry[0])
 
     # loop over runs
     for run in runs:
 
-        # Skip checking on completed runs
-        if action.count('check') + action.count('status') > 0:
-            if run in comepletedrunlist: 
+        # Skip checking on done runs
+        if action.count('status') > 0:
+            if run in donerunlist: 
                 continue
 
         # add leading zeros to run number
@@ -365,6 +366,7 @@ if submit or status or check or makeup or clean:
  
 
         if submit:
+            # Try to update the database showing this run has been submitted
             dbquery = 'UPDATE runsofflineprocessed SET status = \'submitted\' WHERE runnumber = %s AND prodcampaignnum = %s'
             deets = (run, prodcampaignnum)
             dbcur.execute(dbquery, deets)
@@ -375,6 +377,7 @@ if submit or status or check or makeup or clean:
             status_d = {}
             lines = cmdout.split('\n')
             for line in lines:
+                print line
                 # Take everything after the first ':' and throw away the '.' at the end.
                 if line.count(":") < 1: continue
                 tmpline = line.split(':')[1].rstrip('.')
@@ -396,6 +399,8 @@ if submit or status or check or makeup or clean:
 
             # Extract which one status is the one reported. All others will be 0.
             statuses = ('idle','running','held','other')
+            #statuses = status_d.keys()
+            #print statuses
             ministat_d = {}
             for stat in statuses: ministat_d[stat] = status_d[stat]
 
@@ -403,26 +408,29 @@ if submit or status or check or makeup or clean:
             status_sum = 0
             for stat in ministat_d.values(): status_sum = status_sum + int(stat)
             if status_sum == 0:
-                status = 'Not launched'
+                status_str = 'Not launched'
             else:
                 # Not all zero. Which one has the most jobs? (Hint: There's only one job per run.)
                 v = []
                 for stat in ministat_d.values(): v.append(int(stat))
-                status = list(ministat_d.keys())[v.index(max(v))]
+                status_str = list(ministat_d.keys())[v.index(max(v))]
             # print 'status: ',status,'idle:',status_d['idle'],', running:',status_d['running'],', held:',status_d['held'],', other:',status_d['other']
-            # Was the job launched but all the statuses are now 0?  Could be complete.
+            # Was the job launched but all the statuses are now 0?  Could be done.
             dbquery = 'SELECT status FROM runsofflineprocessed WHERE runnumber = %s AND prodcampaignnum = %s;'
             deets = (run, prodcampaignnum)
             dbcur.execute(dbquery, deets)
             oldstat = dbcur.fetchone()[0]  # Want the first (and only) element in the list returned
-            if status_sum == 0 and oldstat != 'Not launched': status = 'complete'
-            if status_sum == 0 and oldstat == 'Not launched': status = oldstat
+            if status_sum == 0 and oldstat != 'Not launched': status_str = 'done'
+            if status_sum == 0 and oldstat == 'Not launched': status_str = oldstat
 
             dbquery = 'UPDATE runsofflineprocessed SET num_art_files = %s, num_events = %s, num_analysis_files = %s, num_errors = %s, num_missing_files = %s, status = %s WHERE runnumber = %s AND prodcampaignnum = %s;'
-            deets = (status_d['art files'], status_d['events'], status_d['analysis files'], status_d['errors'], status_d['missing files'], status, run, prodcampaignnum)
+            deets = (status_d['art files'], status_d['events'], status_d['analysis files'], status_d['errors'], status_d['missing files'], status_str, run, prodcampaignnum)
             dbcur.execute(dbquery, deets)
 
         if check:
+            # Never run --check on run which isn't done (ready for harvest)
+            if run not in donerunlist: continue
+
             # cmdout will be, like, totally, all this way:
             # Checking directory /pnfs/lariat/scratch/users/lariatpro/preproduction/develop/digit_run_006190
             # Checking root files in directory /pnfs/lariat/scratch/users/lariatpro/preproduction/develop/digit_run_006190/6138292_0.
@@ -433,6 +441,7 @@ if submit or status or check or makeup or clean:
             # 0 missing files.
             print cmdout
             lines = cmdout.split('\n')  #Split on linebreaks
+            good_events = good_root_files = good_histogram_files = num_errors = num_missing_files = 0
             for line in lines:
                 if line.count('good events') > 0: good_events = int(line.split(' ')[0])
                 elif line.count('good root files') > 0: good_root_files = int(line.split(' ')[0])
@@ -440,6 +449,15 @@ if submit or status or check or makeup or clean:
                 elif line.count('processes with errors') > 0: num_errors = int(line.split(' ')[0])
                 elif line.count('missing files') > 0: num_missing_files = int(line.split(' ')[0])
 
-            dbquery = 'UPDATE runsofflineprocessed SET num_events = %s, num_analysis_files = %s, num_errors = %s, num_missing_files = %s WHERE runnumber = %s AND prodcampaignnum = %s;'
-            deets = (good_events, good_root_files, num_errors, num_missing_files, run, prodcampaignnum)
+            if good_events + good_root_files + good_histogram_files + num_errors + num_missing_files == 0:
+                status_str = 'problem'
+            elif num_missing_files > 0:
+                status_str = 'missing files'
+            elif num_errors > 0:
+                status_str = 'errors'
+            else: 
+                status_str = 'complete'
+
+            dbquery = 'UPDATE runsofflineprocessed SET num_events = %s, num_analysis_files = %s, num_errors = %s, num_missing_files = %s, status = %s WHERE runnumber = %s AND prodcampaignnum = %s;'
+            deets = (good_events, good_root_files, num_errors, num_missing_files, status_str, run, prodcampaignnum)
             dbcur.execute(dbquery, deets)
