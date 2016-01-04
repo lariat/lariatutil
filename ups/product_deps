@@ -29,15 +29,6 @@ fcldir  -
 libdir  -
 bindir  product_dir    bin
 
-# table fragment to set various environment variables.
-table_fragment_begin
-    #envSet(GROUP, lariat)
-    envSet(JOBSUB_GROUP, lariat)
-    envSet(EXPERIMENT, lariat)
-    envSet(SAM_EXPERIMENT, lariat)
-    pathPrepend(PYTHONPATH, ${UPS_PROD_DIR}/python)
-table_fragment_end
-
 # With "product  version" table below, we now define depdendencies
 # Add the dependent product and version
 
@@ -61,6 +52,15 @@ e9:debug:nobeam -nq-	     e9:debug:nobeam -nq-           -nq-
 e9:opt:nobeam   -nq-	     e9:opt:nobeam   -nq-           -nq-
 e9:prof:nobeam  -nq-	     e9:prof:nobeam  -nq-           -nq-
 end_qualifier_list
+
+# table fragment to set various environment variables.
+table_fragment_begin
+ envSet(JOBSUB_GROUP, lariat)
+ envSet(EXPERIMENT, lariat)
+ envSet(SAM_EXPERIMENT, lariat)
+ pathPrepend(PYTHONPATH, ${UPS_PROD_DIR}/python)
+table_fragment_end
+
 
 # Preserve tabs and formatting in emacs and vi / vim:
 
