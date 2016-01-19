@@ -29,21 +29,14 @@ fcldir  -
 libdir  -
 bindir  product_dir    bin
 
-# table fragment to set various environment variables.
-table_fragment_begin
-    #envSet(GROUP, lariat)
-    envSet(JOBSUB_GROUP, lariat)
-    envSet(EXPERIMENT, lariat)
-    envSet(SAM_EXPERIMENT, lariat)
-    pathPrepend(PYTHONPATH, ${UPS_PROD_DIR}/python)
-table_fragment_end
-
 # With "product  version" table below, we now define depdendencies
 # Add the dependent product and version
 
 product          version
-larbatch        v01_20_01
-lariatsoft      v01_11_00
+larbatch         v01_20_02
+lariatsoft       v01_11_00
+#sam_web_client   v2_0
+#jobsub_client    v1_1_9
 
 cetbuildtools	v4_17_00	-	only_for_build
 end_product_list
@@ -51,17 +44,23 @@ end_product_list
 
 # We now define allowed qualifiers and the corresponding qualifiers for the depdencies.
 # Make a table by adding columns before "notes". 
-qualifier              larbatch	 lariatsoft	notes
-e9:debug               -nq-	     e9:debug
-e9:opt	               -nq-	     e9:opt
-e9:prof	               -nq-	     e9:prof
-e9:debug:noifdh        -nq-	     e9:debug:noifdh
-e9:opt:noifdh          -nq-	     e9:opt:noifdh
-e9:prof:noifdh         -nq-	     e9:prof:noifdh
-e9:debug:noifdh:nobeam -nq-	     e9:debug:noifdh:nobeam
-e9:opt:noifdh:nobeam   -nq-	     e9:opt:noifdh:nobeam
-e9:prof:noifdh:nobeam  -nq-	     e9:prof:noifdh:nobeam
+qualifier       larbatch	 lariatsoft	 notes
+e9:debug        -nq-	     e9:debug		 
+e9:opt	        -nq-	     e9:opt		 
+e9:prof	        -nq-	     e9:prof		 
+e9:debug:nobeam -nq-	     e9:debug:nobeam	 
+e9:opt:nobeam   -nq-	     e9:opt:nobeam	 
+e9:prof:nobeam  -nq-	     e9:prof:nobeam	 
 end_qualifier_list
+
+# table fragment to set various environment variables.
+table_fragment_begin
+ envSet(JOBSUB_GROUP, lariat)
+ envSet(EXPERIMENT, lariat)
+ envSet(SAM_EXPERIMENT, lariat)
+ pathPrepend(PYTHONPATH, ${UPS_PROD_DIR}/python)
+table_fragment_end
+
 
 # Preserve tabs and formatting in emacs and vi / vim:
 
