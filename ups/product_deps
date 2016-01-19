@@ -33,10 +33,10 @@ bindir  product_dir    bin
 # Add the dependent product and version
 
 product          version
-larbatch         v01_20_01
+larbatch         v01_20_02
 lariatsoft       v01_11_00
-sam_web_client   v2_0
-jobsub_client    v1_1_9
+#sam_web_client   v2_0
+#jobsub_client    v1_1_9
 
 cetbuildtools	v4_17_00	-	only_for_build
 end_product_list
@@ -44,13 +44,13 @@ end_product_list
 
 # We now define allowed qualifiers and the corresponding qualifiers for the depdencies.
 # Make a table by adding columns before "notes". 
-qualifier       larbatch	 lariatsoft	     sam_web_client jobsub_client notes
-e9:debug        -nq-	     e9:debug        -nq-           -nq-
-e9:opt	        -nq-	     e9:opt          -nq-           -nq-
-e9:prof	        -nq-	     e9:prof         -nq-           -nq-
-e9:debug:nobeam -nq-	     e9:debug:nobeam -nq-           -nq-
-e9:opt:nobeam   -nq-	     e9:opt:nobeam   -nq-           -nq-
-e9:prof:nobeam  -nq-	     e9:prof:nobeam  -nq-           -nq-
+qualifier       larbatch	 lariatsoft	 notes
+e9:debug        -nq-	     e9:debug		 
+e9:opt	        -nq-	     e9:opt		 
+e9:prof	        -nq-	     e9:prof		 
+e9:debug:nobeam -nq-	     e9:debug:nobeam	 
+e9:opt:nobeam   -nq-	     e9:opt:nobeam	 
+e9:prof:nobeam  -nq-	     e9:prof:nobeam	 
 end_qualifier_list
 
 # table fragment to set various environment variables.
