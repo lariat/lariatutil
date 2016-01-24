@@ -420,7 +420,6 @@ if submit or status or check or makeup or clean:
             deets = (run, prodcampaignnum)
             dbcur.execute(dbquery, deets)
             oldstat = dbcur.fetchone()[0]  # Want the first (and only) element in the list returned
-
             if status_sum == 0 and oldstat != 'Not launched': status = 'done'
             if status_sum == 0 and oldstat == 'Not launched': status = oldstat
 
@@ -451,10 +450,14 @@ if submit or status or check or makeup or clean:
                 elif line.count('missing files') > 0: num_missing_files = int(line.split(' ')[0])
 
             if good_events + good_root_files + good_histogram_files + num_errors + num_missing_files == 0:
-                status = 'problem'
+                status_str = 'problem'
+            elif num_missing_files > 0:
+                status_str = 'missing files'
+            elif num_errors > 0:
+                status_str = 'errors'
             else: 
-                status = 'complete'
+                status_str = 'complete'
 
             dbquery = 'UPDATE runsofflineprocessed SET num_events = %s, num_analysis_files = %s, num_errors = %s, num_missing_files = %s, status = %s WHERE runnumber = %s AND prodcampaignnum = %s;'
-            deets = (good_events, good_root_files, num_errors, num_missing_files, status, run, prodcampaignnum)
+            deets = (good_events, good_root_files, num_errors, num_missing_files, status_str, run, prodcampaignnum)
             dbcur.execute(dbquery, deets)
