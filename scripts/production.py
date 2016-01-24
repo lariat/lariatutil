@@ -9,6 +9,7 @@
 
 import sys
 import os.path
+import glob
 import shutil
 import argparse
 import subprocess
@@ -93,6 +94,24 @@ xml_root = xml_tree.getroot()
 project_xml = xml_root.findall('project_xml')[0].text
 runs = map(int, xml_root.findall('runs')[0].text.split())
 work_dir = xml_root.findall('work_dir')[0].text
+
+def indent(elem, level=0):
+    i = "\n" + level*"  "
+    j = "\n" + (level-1)*"  "
+    if len(elem):
+        if not elem.text or not elem.text.strip():
+            elem.text = i + "  "
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+        for subelem in elem:
+            indent(subelem, level+1)
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = j
+    else:
+        if level and (not elem.tail or not elem.tail.strip()):
+            elem.tail = j
+    return elem     
+
 
 # please, please open a connection to the database!
 please = open('/lariat/app/home/lariatpro/lariat_prd_passwd')
@@ -404,11 +423,40 @@ if submit or status or check or makeup or clean:
             ministat_d = {}
             for stat in statuses: ministat_d[stat] = status_d[stat]
 
-            # Were all statuses zero? Then we haven't submitted yet.
+            # Check how many files were returned to the outdir.
+            proj_xml_tree = ET.parse(project_xml_path)
+            proj_xml_root = proj_xml_tree.getroot()
+            #ET.dump(proj_xml_root)
+            outdir = proj_xml_root.findall('./stage/outdir')[0].text
+            # Get the directory where the job will return its files
+            resultdir = ''
+            resultdirs = glob.glob(outdir+'/*/')
+            if len(resultdirs) == 0:
+                no_resultdir_yet = True
+            else:
+                resultdir = resultdirs[0]
+            
+            # Get the number of output files we expect, and the number returned.
+            expected_filecount = -1
+            returned_filecount = -1 
+            if resultdir != '':
+                filesinresultdir = glob.glob(resultdir+'/*')
+                expected_filecount = sum(1 for line in open(resultdir+'/input.list'))
+                returned_filecount = 0 
+                for f in filesinresultdir:
+                    if f.endswith('.root'):
+                        returned_filecount = 1 + returned_filecount
+            print 'returned / expected:  ',returned_filecount,'/',expected_filecount 
+
+
+            # Were all statuses zero? Then we haven't submitted yet... or else the job is done.
             status_sum = 0
             for stat in ministat_d.values(): status_sum = status_sum + int(stat)
             if status_sum == 0:
                 status_str = 'Not launched'
+                if returned_filecount > 0:
+                    if returned_filecount == expected_filecount: status_str = 'done'
+                    else: status_str = 'problem'
             else:
                 # Not all zero. Which one has the most jobs? (Hint: There's only one job per run.)
                 v = []
