@@ -9,6 +9,7 @@
 
 import sys
 import os.path
+import glob
 import shutil
 import argparse
 import subprocess
@@ -69,8 +70,6 @@ group.add_argument(
 group.add_argument(
     '--submit', action='store_true', help="Submit jobs")
 group.add_argument(
-    '--status', action='store_true', help="Print status of jobs")
-group.add_argument(
     '--check', action='store_true', help="Check output of jobs")
 group.add_argument(
     '--makeup', action='store_true', help="Submit make-up jobs")
@@ -82,7 +81,6 @@ args = parser.parse_args()
 config_xml_file = args.xml
 prepare = args.prepare
 submit = args.submit
-status = args.status
 check = args.check
 makeup = args.makeup
 clean = args.clean
@@ -230,13 +228,11 @@ if prepare:
 import datetime
 
 # utilize project.py
-if submit or status or check or makeup or clean:
+if submit or check or makeup or clean:
 
     # get project.py action
     if submit:
         action = '--submit'
-    elif status:
-        action = '--status'
     elif check:
         action = '--check'
     elif makeup:
@@ -288,12 +284,31 @@ if submit or status or check or makeup or clean:
     for entry in donerunlistoftuples:
         donerunlist.append(entry[0])
 
+    # Get a list of any runs which might already be complete. Their status isn't worth checking.
+    dbquery = 'SELECT runnumber from runsofflineprocessed WHERE prodcampaignnum = %s AND status LIKE \'complete\' ORDER BY runnumber;'
+    deets = (prodcampaignnum,)
+    dbcur.execute(dbquery, deets)
+    completerunlistoftuples = dbcur.fetchall()
+    completerunlist = []
+    for entry in completerunlistoftuples:
+        completerunlist.append(entry[0])
+
+    # Run jobsub_q to get more information on these jobs:
+    jobsub_stats = {}
+    cmdout = subprocess.check_output(['jobsub_q','--role=Production','--user=lariatpro'])
+    cmdout = cmdout.split('\n')
+    for line in cmdout:
+        part = line.split()
+        if len(part)>0 and part[0].count('@')>0: #The lines with information about individual jobs
+            jobstat = part[5]
+            runnum = int(part[8].split('-')[1].rsplit('_',1)[1])
+            jobsub_stats[runnum] = jobstat
+
     # loop over runs
     for run in runs:
 
-        # Skip checking on done runs
-        if action.count('status') > 0:
-            if run in donerunlist: 
+        if action.count('check') > 0:
+            if run in completerunlist: 
                 continue
 
         # add leading zeros to run number
@@ -373,64 +388,9 @@ if submit or status or check or makeup or clean:
             # Did it work?
             if dbcur.statusmessage.count('UPDATE') == 0: print dbcur.statusmessage, ': ', dbcur.query
 
-        if status:
-            status_d = {}
-            lines = cmdout.split('\n')
-            for line in lines:
-                print line
-                # Take everything after the first ':' and throw away the '.' at the end.
-                if line.count(":") < 1: continue
-                tmpline = line.split(':')[1].rstrip('.')
-
-                # split each line up by commas
-                parts = tmpline.split(',')
-                if len(parts) < 2: continue # Skip the blank lines.
-                for part in parts:
-                    # Assuming format like "98 analysis files" or "0 errors"
-                    part = part.lstrip()
-                    (count, label) = part.split(" ",1)
-                    # Store in the dictionary like this
-                    # status_s['analysis files'] = 98
-                    status_d[label] = count
-
-            # Now status_d is like
-            # {'errors': '0', 'missing files': '0', 'art files': '382', 'analysis files': '0',
-            #  'running': '0', 'held': '0', 'idle': '0', 'other': '0', 'events': '6518'}
-
-            # Extract which one status is the one reported. All others will be 0.
-            statuses = ('idle','running','held','other')
-            #statuses = status_d.keys()
-            #print statuses
-            ministat_d = {}
-            for stat in statuses: ministat_d[stat] = status_d[stat]
-
-            # Were all statuses zero? Then we haven't submitted yet.
-            status_sum = 0
-            for stat in ministat_d.values(): status_sum = status_sum + int(stat)
-            if status_sum == 0:
-                status_str = 'Not launched'
-            else:
-                # Not all zero. Which one has the most jobs? (Hint: There's only one job per run.)
-                v = []
-                for stat in ministat_d.values(): v.append(int(stat))
-                status_str = list(ministat_d.keys())[v.index(max(v))]
-            # print 'status: ',status,'idle:',status_d['idle'],', running:',status_d['running'],', held:',status_d['held'],', other:',status_d['other']
-            # Was the job launched but all the statuses are now 0?  Could be done.
-            dbquery = 'SELECT status FROM runsofflineprocessed WHERE runnumber = %s AND prodcampaignnum = %s;'
-            deets = (run, prodcampaignnum)
-            dbcur.execute(dbquery, deets)
-            oldstat = dbcur.fetchone()[0]  # Want the first (and only) element in the list returned
-
-            if status_sum == 0 and oldstat != 'Not launched': status = 'done'
-            if status_sum == 0 and oldstat == 'Not launched': status = oldstat
-
-            dbquery = 'UPDATE runsofflineprocessed SET num_art_files = %s, num_events = %s, num_analysis_files = %s, num_errors = %s, num_missing_files = %s, status = %s WHERE runnumber = %s AND prodcampaignnum = %s;'
-            deets = (status_d['art files'], status_d['events'], status_d['analysis files'], status_d['errors'], status_d['missing files'], status_str, run, prodcampaignnum)
-            dbcur.execute(dbquery, deets)
-
         if check:
             # Never run --check on run which isn't done (ready for harvest)
-            if run not in donerunlist: continue
+            #if run not in donerunlist: continue
 
             # cmdout will be, like, totally, all this way:
             # Checking directory /pnfs/lariat/scratch/users/lariatpro/preproduction/develop/digit_run_006190
@@ -451,10 +411,19 @@ if submit or status or check or makeup or clean:
                 elif line.count('missing files') > 0: num_missing_files = int(line.split(' ')[0])
 
             if good_events + good_root_files + good_histogram_files + num_errors + num_missing_files == 0:
-                status = 'problem'
-            else: 
-                status = 'complete'
+                status_str = 'problem'
+            if num_missing_files > 0:
+                status_str = 'missing files'
+            if num_errors > 0:
+                status_str = 'errors'
+            if status_str != 'problem' and status_str != 'missing files' and status_str != 'errors': 
+                status_str = 'complete'
+
+            if run in jobsub_stats.keys():
+                if jobsub_stats[run] == 'I':   status_str = 'idle'
+                elif jobsub_stats[run] == 'H': status_str = 'held'
+                elif jobsub_stats[run] == 'R': status_str = 'running'
 
             dbquery = 'UPDATE runsofflineprocessed SET num_events = %s, num_analysis_files = %s, num_errors = %s, num_missing_files = %s, status = %s WHERE runnumber = %s AND prodcampaignnum = %s;'
-            deets = (good_events, good_root_files, num_errors, num_missing_files, status, run, prodcampaignnum)
+            deets = (good_events, good_root_files, num_errors, num_missing_files, status_str, run, prodcampaignnum)
             dbcur.execute(dbquery, deets)
