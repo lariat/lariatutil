@@ -90,11 +90,11 @@ def create_config_xml():
     outfile = open(outfilename,'w')
     config_el = ET.Element('config')
     # Need a workdir...
-    workdir_el = ET.SubElement(config_el, 'workdir')
-    workdir_el.text = '/lariat/app/users/lariatpro/lariatsoft/develop/production/job'
+    workdir_el = ET.SubElement(config_el, 'work_dir')
+    workdir_el.text = '/lariat/app/users/lariatpro/work_dirs/v01_11_00/production_2015_12_22'
     # ...a project_xml...
     project_xml_el = ET.SubElement(config_el, 'project_xml')
-    project_xml_el.text = '/lariat/app/users/lariatpro/lariatsoft_v01_09_00/srcs/lariatutil/project.xml'
+    project_xml_el.text = '/lariat/app/users/lariatpro/production/v01_11_00_digit_3/srcs/lariatutil/project.xml'
     # ...and the run list itself
     runs_el = ET.SubElement(config_el, 'runs')
     runs_eltext = '\n'
