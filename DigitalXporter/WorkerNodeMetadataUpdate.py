@@ -12,11 +12,9 @@ import sys
 import os
 import time
 import shutil
-import filelock
 import xml.etree.ElementTree as ET
 import json
 import samweb_client
-from addzeros import addzeros
 
 #
 #   Count the number of returned files in the local directory here on the worker node
