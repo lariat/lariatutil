@@ -53,6 +53,7 @@ for datafile in datafilelist:
     # Re-open the dictionary and load it into a JSON object
     fp = open(jsonfilename,"r")
     thejson = json.load(fp)
+    fp.close()
 
     # Get the metadata of the parent raw file
     parentfilename = datafile[:29]+".root"
