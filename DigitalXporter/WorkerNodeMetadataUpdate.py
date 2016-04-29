@@ -32,28 +32,35 @@ samweb=samweb_client.SAMWebClient(experiment="lariat")
 nfilesprocessed = 0
 for datafile in datafilelist:
     print datafile
+    # Example: lariat_digit_r008124_sr0009_20160422T164208.root
     jsonfilename = datafile+".json"
     print jsonfilename
-    # Skip if no JSON file was created
+
+    # Open a new file with this name for writing into.
+    f = open(jsonfilename,"w+")
+    # Option to skip if no JSON file was created
     if not os.path.isfile(jsonfilename): continue
+
+    # Make a small dictionary.
+    metadata = {}
+    metadata["data_tier"] = 'digits'
+    metadata["file_format"] = 'artroot'
+
+    # Dump the small dictionary into the file as JSON, then close the file.
+    json.dump(metadata, f)
+    f.close()
+
+    # Re-open the dictionary and load it into a JSON object
     fp = open(jsonfilename,"r")
-    thejson=json.load(fp)
-    fp.close()
-    
-    # Make a change or two
-    thejson["data_tier"] = "digits"
-    thejson["file_format"] = "artroot"
-    
-    runnumber = thejson["subruns"][0][0]
-    subrunnumber = thejson["subruns"][0][1]
-    parentfilename = 'lariat_r{:06}_sr{:04}.root'.format(runnumber,subrunnumber)
-    print parentfilename
-    thejson["parent"] = parentfilename
+    thejson = json.load(fp)
 
     # Get the metadata of the parent raw file
+    parentfilename = datafile[:29]+".root"
+    parentfilename = parentfilename.replace('_digit_', '_')
+    parentfilename = os.path.basename(parentfilename)
+    #print parentfilename
     parentjson = samweb.getMetadata(parentfilename)
-
-    # ...and add it to the outgoing json object
+    # ...and add the metadata to the outgoing json object
     intlist = ("secondary.intensity", "secondary.momentum", "tertiary.magnet_current", "tertiary.number_MuRS", "detector.shield_voltage", "detector.cathode_voltage", "detector.induction_voltage", "detector.collection_voltage")
 
     stringlist = ("file_type", "file_format", "tertiary.punch_through", "tertiary.DSTOF", "tertiary.halo_paddle", "tertiary.MWPC3", "tertiary.MWPC2", "tertiary.MWPC1", "tertiary.MWPC4", "detector.pmt_ham", "detector.sipm_sensl", "tertiary.magnet_polarity", "tertiary.cosmic_counters", "tertiary.muon_range_stack", "secondary.polarity", "detector.sipm_ham", "tertiary.cherenkov2", "tertiary.beam_counters", "tertiary.cherenkov1", "tertiary.USTOF", "detector.pmt_etl")
