@@ -98,7 +98,7 @@ for datafile in datafilelist:
     # [0]: run, [1]: subrun, [2]: event number
     # Want ints, not these tuples we get!
     thejson["last_event"] = thejson["last_event"][2]
-    thejson["first_event"] = thejson["last_event"] - thejson["event_count"] # Event number incorrectly set in first. Take from last. 
+    thejson["first_event"] = 1 + thejson["last_event"] - thejson["event_count"] # Event number incorrectly set in first. Take from last. 
 
     # Get the metadata of the parent raw file
     parentjson = samweb.getMetadata(parentfilename)
