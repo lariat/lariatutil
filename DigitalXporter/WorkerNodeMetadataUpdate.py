@@ -114,11 +114,18 @@ for datafile in datafilelist:
         elif key in intlist:
             thejson[key] = int(parentjson[key])
 
+    thejson['application'] = {}
+    thejson['application']['name']   = "lariatsoft"
+    thejson['application']['family'] = "art"
+    
     # Finally, grab environment variables and add them to the metadata:
     environ_vars = {'LARIATSOFT_VERSION':'version',}
     for k,v in environ_vars.iteritems():
         if k in os.environ.keys():
-            thejson[v] = os.environ[k]
+            if v == 'version':
+                thejson['application'][v] = os.environ[k]
+            else: thejson[v] = os.environ[k]
+    # close for k,v in environ_vars.iteritems()
 
     newfile = open(jsonfilename,'w+')
     newfile.write(json.dumps(thejson, indent=3, sort_keys=True))
