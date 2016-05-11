@@ -47,6 +47,7 @@ for datafile in datafilelist:
     # Set some string values by hand
     thejson["data_tier"] = "digits"
     thejson["file_format"] = "artroot"
+    thejson["file_size"] = int(thejson["file_size"])
 
     runnumber = thejson["subruns"][0][0]
     subrunnumber = thejson["subruns"][0][1]
@@ -88,7 +89,7 @@ for datafile in datafilelist:
     # "first_event",
     # "last_event",
     # "parents"
-    dumpthese = ("data_stream", "file_format",  
+    dumpthese = ("data_stream", "file_format",
                  "start_time", "end_time", 
                  "event_count", "first_event", "last_event", "parents")
     for key in dumpthese:
