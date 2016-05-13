@@ -107,7 +107,7 @@ for datafile in datafilelist:
     # ...and add it to the outgoing json object
     intlist = ("secondary.intensity", "secondary.momentum", "tertiary.magnet_current", "tertiary.number_MuRS", "detector.shield_voltage", "detector.cathode_voltage", "detector.induction_voltage", "detector.collection_voltage")
 
-    stringlist = ("file_type", "tertiary.punch_through", "tertiary.DSTOF", "tertiary.halo_paddle", "tertiary.MWPC3", "tertiary.MWPC2", "tertiary.MWPC1", "tertiary.MWPC4", "detector.pmt_ham", "detector.sipm_sensl", "tertiary.magnet_polarity", "tertiary.cosmic_counters", "tertiary.muon_range_stack", "secondary.polarity", "detector.sipm_ham", "tertiary.cherenkov2", "tertiary.beam_counters", "tertiary.cherenkov1", "tertiary.USTOF", "detector.pmt_etl")
+    stringlist = ("runs", "file_type", "tertiary.punch_through", "tertiary.DSTOF", "tertiary.halo_paddle", "tertiary.MWPC3", "tertiary.MWPC2", "tertiary.MWPC1", "tertiary.MWPC4", "detector.pmt_ham", "detector.sipm_sensl", "tertiary.magnet_polarity", "tertiary.cosmic_counters", "tertiary.muon_range_stack", "secondary.polarity", "detector.sipm_ham", "tertiary.cherenkov2", "tertiary.beam_counters", "tertiary.cherenkov1", "tertiary.USTOF", "detector.pmt_etl")
 
     for key, value in parentjson.iteritems():
         if key in stringlist:
