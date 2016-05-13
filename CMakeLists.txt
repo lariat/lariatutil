@@ -68,6 +68,7 @@ add_subdirectory(scripts)
 
 # Python modules.
 add_subdirectory(python)
+add_subdirectory(DigitalXporter)
 
 # packaging utility
 include(UseCPack)
