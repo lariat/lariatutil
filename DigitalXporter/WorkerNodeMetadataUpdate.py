@@ -44,6 +44,9 @@ for datafile in datafilelist:
     thejson=json.load(fp)
     fp.close()
 
+    # Skip runt files with "events": 0
+    if thejson["events"] == '0': continue
+
     # Set some string values by hand
     thejson["data_tier"] = "digits"
     thejson["file_format"] = "artroot"
