@@ -34,7 +34,7 @@ bindir  product_dir    bin
 
 product          version
 larbatch         v01_22_01
-art		 v2_00_02
+art		 v2_00_03
 cetbuildtools	 v5_02_02	-	only_for_build
 end_product_list
 
