@@ -2,7 +2,7 @@
 
 # The *parent* line must the first non-commented line and defines this product and version
 # The version should be of the form vxx_yy_zz (e.g. v01_02_03)
-parent lariatutil v06_00_01
+parent lariatutil v06_02_00
 defaultqual e10
 
 
@@ -33,7 +33,7 @@ bindir  product_dir    bin
 # Add the dependent product and version
 
 product          version
-larbatch         v01_23_03
+larbatch         v01_23_04
 art		 v2_00_03
 cetbuildtools	 v5_02_02	-	only_for_build
 end_product_list
