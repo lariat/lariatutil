@@ -57,8 +57,12 @@ def get_dropbox(filename):
 # Return fcl configuration for experiment-specific sam metadata.
 
 def get_sam_metadata(project, stage):
-    result = 'services.user.FileCatalogMetadataLArIAT: {\n'
-    result = result + '  FCLName: "%s"\n' % os.path.basename(stage.fclname)
+    if len(stage.fclname) == 0:
+        raise RuntimeError, "No fclname found (len(stage.fclname)=0)"
+    if len(stage.fclname) > 1:
+        raise NotImplementedError, "Can only deal with a single fclname, not %s" % stage.fclname
+    result = 'services.FileCatalogMetadataLArIAT: {\n'
+    result = result + '  FCLName: "%s"\n' % os.path.basename(stage.fclname[0])
     result = result + '  FCLVersion: "%s"\n' % project.release_tag
     result = result + '  ProjectName: "%s"\n' % project.name
     result = result + '  ProjectStage: "%s"\n' % stage.name
