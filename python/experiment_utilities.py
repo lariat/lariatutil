@@ -77,15 +77,15 @@ def get_sam_metadata(project, stage):
 
 def get_setup_script_path():
 
-    OASIS_DIR="/cvmfs/oasis.opensciencegrid.org/lariat/products/"
+    CVMFS_DIR="/cvmfs/lariat.opensciencegrid.org/"
     FERMIAPP_DIR="/grid/fermiapp/lariat/"
 
-    if os.path.isfile(FERMIAPP_DIR+"setup_lariat.sh"):
+    if os.path.isfile(CVMFS_DIR+"setup_lariat.sh"):
+        setup_script = CVMFS_DIR+"setup_lariat.sh"
+    elif os.path.isfile(FERMIAPP_DIR+"setup_lariat.sh"):
         setup_script = FERMIAPP_DIR+"setup_lariat.sh"
-    elif os.path.isfile(OASIS_DIR+"setup_lariat.sh"):
-        setup_script = OASIS_DIR+"setup_lariat.sh"
     else:
-        raise RuntimeError, "Could not find setup script at "+FERMIAPP_DIR+" or "+OASIS_DIR
+        raise RuntimeError, "Could not find setup script at "+FERMIAPP_DIR+" or "+CVMFS_DIR
 
     return setup_script
 
@@ -103,4 +103,10 @@ def dimensions(project, stage):
 
 def get_ups_products():
     return 'lariatsoft'
+
+def get_scratch_dir():
+    username = os.getenv("LOGNAME")
+    dir = "/lariat/app/users/{}".format(username)
+    return dir
+    
 
