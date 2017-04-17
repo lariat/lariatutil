@@ -80,10 +80,10 @@ def get_setup_script_path():
     CVMFS_DIR="/cvmfs/lariat.opensciencegrid.org/"
     FERMIAPP_DIR="/grid/fermiapp/lariat/"
 
-    if os.path.isfile(CVMFS_DIR+"setup_lariat.sh"):
-        setup_script = CVMFS_DIR+"setup_lariat.sh"
-    elif os.path.isfile(FERMIAPP_DIR+"setup_lariat.sh"):
+    if os.path.isfile(FERMIAPP_DIR+"setup_lariat.sh"):
         setup_script = FERMIAPP_DIR+"setup_lariat.sh"
+    elif os.path.isfile(CVMFS_DIR+"setup_lariat.sh"):
+        setup_script = CVMFS_DIR+"setup_lariat.sh"
     else:
         raise RuntimeError, "Could not find setup script at "+FERMIAPP_DIR+" or "+CVMFS_DIR
 
