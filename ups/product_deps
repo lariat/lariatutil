@@ -2,8 +2,8 @@
 
 # The *parent* line must the first non-commented line and defines this product and version
 # The version should be of the form vxx_yy_zz (e.g. v01_02_03)
-parent lariatutil v06_66_00
-defaultqual e14
+parent lariatutil v06_67_00
+defaultqual e15
 
 
 # These optional lines define the installed directories where headers,
@@ -42,6 +42,9 @@ end_product_list
 # We now define allowed qualifiers and the corresponding qualifiers for the depdencies.
 # Make a table by adding columns before "notes". 
 qualifier      	  larbatch	 art		 notes
+e15:debug         -nq-		 nu:e15:debug
+e15:opt	          -nq-		 nu:e15:opt
+e15:prof	  -nq-		 nu:e15:prof
 e14:debug         -nq-		 nu:e14:debug
 e14:opt	          -nq-		 nu:e14:opt
 e14:prof	  -nq-		 nu:e14:prof
