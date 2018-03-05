@@ -34,7 +34,7 @@ bindir  product_dir    bin
 
 product          version
 larbatch         v01_37_01
-art		 v2_09_06
+art		 v2_10_03
 cetbuildtools   v7_00_03	-	only_for_build
 end_product_list
 
@@ -42,9 +42,9 @@ end_product_list
 # We now define allowed qualifiers and the corresponding qualifiers for the depdencies.
 # Make a table by adding columns before "notes". 
 qualifier      	  larbatch	 art		 notes
-e15:debug         -nq-		 nu:e15:debug
-e15:opt	          -nq-		 nu:e15:opt
-e15:prof	  -nq-		 nu:e15:prof
+e15:debug         -nq-		 e15:debug
+e15:opt	          -nq-		 e15:opt
+e15:prof	  -nq-		 e15:prof
 end_qualifier_list
 
 # table fragment to set various environment variables.
