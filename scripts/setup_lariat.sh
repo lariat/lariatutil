@@ -1,61 +1,86 @@
 # Source this file to set the basic configuration needed by LArSoft 
-# and for the uBooNE-specific software that interfaces to LArSoft.
+# and for the LArIAT-specific software that interfaces to LArSoft.
 
-# Set up ups for LArSoft
-# Sourcing this setup will add /grid/fermiapp/products/larsoft and
-# /grid/fermiapp/products/common to $PRODUCTS
-#
+FERMIAPP_LARSOFT1_DIR="/grid/fermiapp/products/larsoft/"
+FERMIOSG_LARSOFT1_DIR="/cvmfs/fermilab.opensciencegrid.org/products/larsoft/"
 
-OASIS_LARSOFT_DIR="/cvmfs/oasis.opensciencegrid.org/fermilab/products/larsoft/"
-FERMIAPP_LARSOFT_DIR="/grid/fermiapp/products/larsoft/"
-OASIS_LARIAT_DIR="/cvmfs/oasis.opensciencegrid.org/lariat/products/"
+FERMIOSG_LARSOFT2_DIR="/cvmfs/larsoft.opensciencegrid.org/products/"
+
 FERMIAPP_LARIAT_DIR="/grid/fermiapp/products/lariat/"
-FERMIAPP_COMMON_DIR="/grid/fermiapp/products/"
+FERMIOSG_LARIAT_DIR="/cvmfs/lariat.opensciencegrid.org/products/"
+
 LARIAT_BLUEARC_DATA="/lariat/data/"
 
-#if [[ -d "${FERMIAPP_COMMON_DIR}" ]]; then
-#    echo "Setting up the Grid Fermiapp common UPS area...${FERMIAPP_COMMON_DIR}"
-#    source ${FERMIAPP_COMMON_DIR}/setups.sh
-#fi
+# Set up ups for LArSoft
+# Sourcing this setup will add larsoft and common to $PRODUCTS
 
-if [[ -d "${FERMIAPP_LARSOFT_DIR}" ]]; then
-    echo "Setting up the Grid Fermiapp larsoft UPS area...${FERMIAPP_LARSOFT_DIR}"
-    echo /bin/bash > /dev/null
-    source ${FERMIAPP_LARSOFT_DIR}/setups
-    export PRODUCTS=${PRODUCTS}:/grid/fermiapp/products/common/db
+for dir in $FERMIOSG_LARSOFT1_DIR $FERMIAPP_LARSOFT1_DIR;
+do
+  if [[ -f $dir/setup ]]; then
+    echo "Setting up old larsoft UPS area... ${dir}"
+    source $dir/setup
+    common=`dirname $dir`/common/db
+    if [[ -d $common ]]; then
+      export PRODUCTS=`dropit -p $PRODUCTS common/db`:`dirname $dir`/common/db
+    fi
+    break
+  fi
+done
 
-elif [[ -d "${OASIS_LARSOFT_DIR}" ]]; then
-    echo "Setting up the OASIS Fermilab UPS area...${OASIS_LARSOFT_DIR}"
-    echo /bin/bash > /dev/null
-    source ${OASIS_LARSOFT_DIR}/setups.for.cvmfs
-    export PRODUCTS=${PRODUCTS}:/cvmfs/oasis.opensciencegrid.org/fermilab/products/common/db
+# Sourcing this setup will add new larsoft to $PRODUCTS
+
+for dir in $FERMIOSG_LARSOFT2_DIR
+do
+  if [[ -f $dir/setup ]]; then
+    echo "Setting up new larsoft UPS area... ${dir}"
+    source $dir/setup
+    break
+  fi
+done
+
+# Set up ups for LArIAT
+
+for dir in $FERMIOSG_LARIAT_DIR $FERMIAPP_LARIAT_DIR;
+do
+  if [[ -f $dir/setup ]]; then
+    echo "Setting up lariat UPS area... ${dir}"
+    source $dir/setup
+    break
+  fi
+done
+
+# Add current working directory (".") to FW_SEARCH_PATH
+#
+if [[ -n "${FW_SEARCH_PATH}" ]]; then
+  FW_SEARCH_PATH=`dropit -e -p $FW_SEARCH_PATH .`
+  export FW_SEARCH_PATH=.:${FW_SEARCH_PATH}
+else
+  export FW_SEARCH_PATH=.
 fi
 
-if [[ -d "${FERMIAPP_LARIAT_DIR}" ]]; then
-    echo "Setting up the Grid Fermiapp lariat UPS area...${FERMIAPP_LARIAT_DIR}"
-    echo /bin/bash > /dev/null
-#    source ${FERMIAPP_LARIAT_DIR}/setups
-    export "/grid/fermiapp/products/lariat:$PRODUCTS"
-
-elif [[ -d "${OASIS_LARIAT_DIR}" ]]; then
-    echo "Setting up the OASIS lariat UPS area...${OASIS_LARIAT_DIR}"
-    echo /bin/bash > /dev/null
-    source ${OASIS_LARIAT_DIR}/setups.for.cvmfs
-fi
-
-# Add uBooNE path to FW_SEARCH_PATH
+# Add LArIAT data path to FW_SEARCH_PATH
 #
 if [[ -d "${LARIAT_BLUEARC_DATA}" ]]; then
 
-    [[ -n $FW_SEARCH_PATH ]] && FW_SEARCH_PATH=`dropit -e -p $FW_SEARCH_PATH ${LARIAT_BLUEARC_DATA}`
-    export FW_SEARCH_PATH=${LARIAT_BLUEARC_DATA}:${FW_SEARCH_PATH}
+    if [[ -n "${FW_SEARCH_PATH}" ]]; then
+      FW_SEARCH_PATH=`dropit -e -p $FW_SEARCH_PATH ${LARIAT_BLUEARC_DATA}`
+      export FW_SEARCH_PATH=${LARIAT_BLUEARC_DATA}:${FW_SEARCH_PATH}
+    else
+      export FW_SEARCH_PATH=${LARIAT_BLUEARC_DATA}
+    fi
 
 fi
 
-
 # Set up the basic tools that will be needed
 #
-setup git
+if [ `uname` != Darwin ]; then
+
+  # Work around git table file bugs.
+
+  export PATH=`dropit git`
+  export LD_LIBRARY_PATH=`dropit -p $LD_LIBRARY_PATH git`
+  setup git
+fi
 setup gitflow
 setup mrb
 
@@ -68,7 +93,7 @@ export MRB_PROJECT=larsoft
 # Define environment variables that store the standard experiment name.
 
 export JOBSUB_GROUP=lariat
-export EXPERIMENT=lariat
+export EXPERIMENT=lariat     # Used by ifdhc
 export SAM_EXPERIMENT=lariat
 
 # For Art workbook
