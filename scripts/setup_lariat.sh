@@ -7,14 +7,14 @@ FERMIOSG_LARSOFT1_DIR="/cvmfs/fermilab.opensciencegrid.org/products/larsoft/"
 FERMIOSG_LARSOFT2_DIR="/cvmfs/larsoft.opensciencegrid.org/products/"
 
 FERMIAPP_LARIAT_DIR="/grid/fermiapp/products/lariat/"
-FERMIOSG_LARIAT_DIR="/cvmfs/lariat.opensciencegrid.org/products/"
+FERMIOSG_LARIAT_DIR="/cvmfs/lariat.opensciencegrid.org/externals/"
 
 LARIAT_BLUEARC_DATA="/lariat/data/"
 
 # Set up ups for LArSoft
 # Sourcing this setup will add larsoft and common to $PRODUCTS
 
-for dir in $FERMIOSG_LARSOFT1_DIR $FERMIAPP_LARSOFT1_DIR;
+for dir in $FERMIAPP_LARSOFT1_DIR $FERMIOSG_LARSOFT1_DIR;
 do
   if [[ -f $dir/setup ]]; then
     echo "Setting up old larsoft UPS area... ${dir}"
@@ -40,7 +40,7 @@ done
 
 # Set up ups for LArIAT
 
-for dir in $FERMIOSG_LARIAT_DIR $FERMIAPP_LARIAT_DIR;
+for dir in $FERMIAPP_LARIAT_DIR $FERMIOSG_LARIAT_DIR;
 do
   if [[ -f $dir/setup ]]; then
     echo "Setting up lariat UPS area... ${dir}"
