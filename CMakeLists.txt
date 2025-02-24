@@ -44,7 +44,7 @@ cet_report_compiler_flags()
 # these are minimum required versions, not the actual product versions
 find_ups_product( art v1_08_00 )
 find_ups_product(art_root_io)
-find_ups_product( cetbuildtools v3_07_00 )
+find_ups_product( cetbuildtools v7_14_00 )
 
 
 
